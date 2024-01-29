@@ -22,8 +22,14 @@ $("#search-button").on("click", function (event) {
   // Perform a Fetch API call to retrieve weather data
   fetch(queryURL)
     .then(function (response) {
-      // Extract JSON data from the response
-      return response.json();
+      // Check if the response status is OK (200)
+      if (response.ok) {
+        // Extract JSON data from the response
+        return response.json();
+      } else {
+        // If response status is not OK, handle the error
+        throw new Error("City not found");
+      }
     })
     .then(function (data) {
       // Log the constructed query URL
@@ -31,6 +37,13 @@ $("#search-button").on("click", function (event) {
 
       // Log the retrieved weather data object
       console.log(data);
+    })
+    .catch(function (error) {
+      // Handle errors, such as city not found
+      console.error(error);
+      // Alert the user about the error and prompt them to input a correct city
+      alert("City not found. Please enter a valid city name.");
+    
     });
 
   // Extract and trim the city name from the input, then add it to the cities array
@@ -42,6 +55,8 @@ $("#search-button").on("click", function (event) {
 
   // Reset the input field after a successful search
   $("#search-input").val("");
+
+
 });
 
 // Function to render buttons for each searched city
