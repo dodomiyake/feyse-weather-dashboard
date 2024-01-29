@@ -14,7 +14,7 @@ $("#search-button").on("click", function (event) {
 
   // Construct the URL for querying weather data using OpenWeatherMap API
   var queryURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${APIKey}`;
-  var forecastQuery = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${APIKey}&cnt=5`;
+  var forecastQuery = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${APIKey}&cnt=38`;
 
   // Perform a Fetch API call to retrieve weather data
   fetch(queryURL)
@@ -98,7 +98,7 @@ function renderForecast(data) {
     $("#forecast").append(forecastHeader);
   
     // Loop through the forecast data
-    for (var i = 0; i < data.list.length; i++) {
+    for (var i = 4; i < data.list.length; i+=8) {
       var forecastItem = data.list[i];
   
       // Create a new list item for each forecast item
