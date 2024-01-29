@@ -21,12 +21,12 @@ $("#search-button").on("click", function (event) {
     .then(handleResponse)
     .then(function (data) {
       // Extract and trim the city name from the input, then add it to the cities array
-      cities.push(city);
+      cities.push({ name: city, data: data });
 
       // Invoke the renderButtons function to update the displayed city buttons
       renderButtons();
 
-      // Render the current weather information
+      // Render the current weather information for the clicked city
       renderCurrentWeather(data);
     })
     .catch(function (error) {
@@ -62,6 +62,9 @@ function handleResponse(response) {
 
 // Function to render current weather information
 function renderCurrentWeather(data) {
+  // Clear the existing content in the "today" container
+  $("#today").empty();
+
   var now = dayjs().format("DD/MM/YYYY");
   var cityName = $("<h2>").addClass("fw-bold");
   var weatherIcon = data.weather[0].icon;
@@ -92,38 +95,52 @@ function renderCurrentWeather(data) {
   $("#today").append(humidity);
 }
 
-/// Function to render forecast information
+// Function to render forecast information
 function renderForecast(data) {
-    var forecastHeader = $("<h5>").addClass("fw-bold").text("5-Day Forecast:");
-    $("#forecast").append(forecastHeader);
-  
-    // Loop through the forecast data
-    for (var i = 4; i < data.list.length; i+=8) {
-      var forecastItem = data.list[i];
-  
-      // Create a new list item for each forecast item
-      var forecastList = $("<li>").addClass("list-group-item col-md-2 p-3 mb-2 mx-3 bg-dark text-white");
-      var forecastWind = $("<div>").addClass("windEl mb-3").text(`Wind: ${forecastItem.wind.speed} KPH`);
-      var forecastHum = $("<div>").addClass("humidityEl mb-3").text(`Humidity: ${forecastItem.main.humidity}%`);
-  
-      var forecastDate = dayjs(forecastItem.dt_txt).format("DD/MM/YYYY");
-      var forecastIcon = forecastItem.weather[0].icon;
-      var forecastIconImg = `https://openweathermap.org/img/wn/${forecastIcon}.png`;
-      var forecastImg = $("<img>").attr("src", forecastIconImg).addClass("mb-3");
-      var forecastTempC = forecastItem.main.temp - 273.15;
-  
-      // Set the content for each forecast item
-      forecastList.append($("<h6>").text(forecastDate));
-      forecastList.append(forecastImg);
-      forecastList.append($("<div>").text(`Temp: ${forecastTempC.toFixed(2)}°C`).addClass("mb-3"));
-      forecastList.append(forecastWind);
-      forecastList.append(forecastHum);
-  
-      // Append the forecast item to the forecast container
-      $("#forecast").append(forecastList);
-    }
+  // Clear the existing content in the "forecast" container
+  $("#forecast").empty();
+
+  var forecastHeader = $("<h5>").addClass("fw-bold").text("5-Day Forecast:");
+  $("#forecast").append(forecastHeader);
+
+  // Create a new row for the forecast items
+  var forecastRow = $("<div>").addClass("row");
+
+  // Loop through the forecast items
+  for (var i = 4; i < data.list.length; i += 8) {
+    var forecastItem = data.list[i];
+
+    // Create a new list item for each forecast item
+    var forecastList = $("<li>").addClass(
+      "list-group-item col-md-2 mx-3 mb-3 p-3 bg-dark text-white"
+    );
+    var forecastWind = $("<div>")
+      .addClass("windEl")
+      .text(`Wind: ${forecastItem.wind.speed} KPH`);
+    var forecastHum = $("<div>")
+      .addClass("humidityEl")
+      .text(`Humidity: ${forecastItem.main.humidity}%`);
+
+    var forecastDate = dayjs(forecastItem.dt_txt).format("DD/MM/YYYY");
+    var forecastIcon = forecastItem.weather[0].icon;
+    var forecastIconImg = `https://openweathermap.org/img/wn/${forecastIcon}.png`;
+    var forecastImg = $("<img>").attr("src", forecastIconImg);
+    var forecastTempC = forecastItem.main.temp - 273.15;
+
+    // Set the content for each forecast item
+    forecastList.append($("<h6>").text(forecastDate));
+    forecastList.append(forecastImg);
+    forecastList.append($("<div>").text(`Temp: ${forecastTempC.toFixed(2)}°C`));
+    forecastList.append(forecastWind);
+    forecastList.append(forecastHum);
+
+    // Append the forecast item to the forecast container
+    forecastRow.append(forecastList);
   }
-  
+
+  // Append the forecast row to the forecast container
+  $("#forecast").append(forecastRow);
+}
 
 // Function to render buttons for each searched city
 function renderButtons() {
@@ -141,10 +158,23 @@ function renderButtons() {
     aList.addClass("btn btn-secondary w-100");
 
     // Set the text content of the anchor tag to the current city
-    aList.text(cities[i]);
+    aList.text(cities[i].name);
 
     // Append the anchor tag to the list item, then append the list item to the history container
     list.append(aList);
     $("#history").append(list);
+
+    // Attach a click event listener to the anchor tag
+    aList.on("click", function (event) {
+      // Prevent the default anchor tag behavior
+      event.preventDefault();
+
+      // Find the clicked city's data from the cities array
+      var clickedCity = cities.find((city) => city.name === $(this).text());
+
+      // Render the current weather and forecast for the clicked city
+      renderCurrentWeather(clickedCity.data);
+      renderForecast(clickedCity.data);
+    });
   }
 }
