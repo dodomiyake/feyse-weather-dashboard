@@ -7,7 +7,7 @@ $("#search-button").on("click", function (event) {
   event.preventDefault();
 
   // Retrieve the entered city name from the input box
-  var city = $("#search-input").val();
+  var city = $("#search-input").val().trim();
 
   // Define the API key for OpenWeatherMap
   var APIKey = "e423019d8b3f2409867c92556f4d3caf";
@@ -37,26 +37,22 @@ $("#search-button").on("click", function (event) {
 
       // Log the retrieved weather data object
       console.log(data);
+
+      // Extract and trim the city name from the input, then add it to the cities array
+      cities.push(city);
+
+      // Invoke the renderButtons function to update the displayed city buttons
+      renderButtons();
     })
     .catch(function (error) {
       // Handle errors, such as city not found
       console.error(error);
       // Alert the user about the error and prompt them to input a correct city
       alert("City not found. Please enter a valid city name.");
-    
     });
-
-  // Extract and trim the city name from the input, then add it to the cities array
-  var cityVal = $("#search-input").val().trim();
-  cities.push(cityVal);
-
-  // Invoke the renderButtons function to update the displayed city buttons
-  renderButtons();
 
   // Reset the input field after a successful search
   $("#search-input").val("");
-
-
 });
 
 // Function to render buttons for each searched city
