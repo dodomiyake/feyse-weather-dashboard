@@ -43,7 +43,23 @@ $("#search-button").on("click", function (event) {
 
       // Invoke the renderButtons function to update the displayed city buttons
       renderButtons();
+
+      var now = dayjs().format("DD/MM/YYYY");
+      var cityName = $("<h1>");
+      var weatherIcon = data.weather[0].icon;
+      var iconImg = "https://openweathermap.org/img/wn/" + weatherIcon + ".png";
+      var weatherImg = $("<img>").attr("src", iconImg);
+
+      cityName.text(data.name + " " + "(" + now + ")");
+
+      var weatherDiv = $("<div>");
+      weatherDiv.addClass("d-flex");
+
+      weatherDiv.append(cityName, weatherImg);
+
+      $("#today").append(weatherDiv);
     })
+
     .catch(function (error) {
       // Handle errors, such as city not found
       console.error(error);
