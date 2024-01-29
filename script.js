@@ -39,6 +39,9 @@ $("#search-button").on("click", function (event) {
 
   // Invoke the renderButtons function to update the displayed city buttons
   renderButtons();
+
+  // Reset the input field after a successful search
+  $("#search-input").val("");
 });
 
 // Function to render buttons for each searched city
