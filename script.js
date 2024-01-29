@@ -58,6 +58,25 @@ $("#search-button").on("click", function (event) {
       weatherDiv.append(cityName, weatherImg);
 
       $("#today").append(weatherDiv);
+
+      //Convert the temp to Celsius
+      var tempC = data.main.temp - 273.15;
+
+      var temp = $("<div>").addClass("temperature mb-4");
+      var wind = $("<div>").addClass("wind mb-4");
+      var humidity = $("<div>").addClass("humidity mb-4");
+
+      temp.text("Temp: " + tempC.toFixed(2) + "°C");
+      wind.text("Wind: " + data.wind.speed + " " + "KPH")
+      humidity.text("Humidity: " + data.main.humidity + "%")
+
+
+      $("#today").append(temp)
+      $("#today").append(wind)
+      $("#today").append(humidity)
+
+      
+
     })
 
     .catch(function (error) {
