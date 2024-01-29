@@ -1,5 +1,5 @@
 // Create an empty array to store searched cities
-var cities = [];
+var cities = JSON.parse(localStorage.getItem('cities')) || [];
 
 // Attach a click event listener to the search button
 $("#search-button").on("click", function (event) {
@@ -22,6 +22,9 @@ $("#search-button").on("click", function (event) {
     .then(function (data) {
       // Extract and trim the city name from the input, then add it to the cities array
       cities.push({ name: city, data: data });
+
+      // Save the updated cities array to localStorage
+      localStorage.setItem('cities', JSON.stringify(cities));
 
       // Invoke the renderButtons function to update the displayed city buttons
       renderButtons();
@@ -107,21 +110,15 @@ function renderForecast(data) {
   var forecastRow = $("<div>").addClass("row");
 
   // Loop through the forecast items
-  for (var i = 4; i < data.list.length; i += 8) {
+  for (var i = 1; i < data.list.length; i += 8) {
     var forecastItem = data.list[i];
 
     // Create a new list item for each forecast item
-    var forecastList = $("<li>").addClass(
-      "list-group-item col-md-2 mx-3 mb-3 p-3 bg-dark text-white"
-    );
-    var forecastWind = $("<div>")
-      .addClass("windEl")
-      .text(`Wind: ${forecastItem.wind.speed} KPH`);
-    var forecastHum = $("<div>")
-      .addClass("humidityEl")
-      .text(`Humidity: ${forecastItem.main.humidity}%`);
+    var forecastList = $("<li>").addClass("list-group-item col-md-2 mx-3 mb-3 p-3 bg-dark text-white");
+    var forecastWind = $("<div>").addClass("windEl").text(`Wind: ${forecastItem.wind.speed} KPH`);
+    var forecastHum = $("<div>").addClass("humidityEl").text(`Humidity: ${forecastItem.main.humidity}%`);
 
-    var forecastDate = dayjs(forecastItem.dt_txt).format("DD/MM/YYYY");
+    var forecastDate = dayjs(forecastItem.dt_txt).add(1, 'day').format("DD/MM/YYYY");
     var forecastIcon = forecastItem.weather[0].icon;
     var forecastIconImg = `https://openweathermap.org/img/wn/${forecastIcon}.png`;
     var forecastImg = $("<img>").attr("src", forecastIconImg);
@@ -134,7 +131,7 @@ function renderForecast(data) {
     forecastList.append(forecastWind);
     forecastList.append(forecastHum);
 
-    // Append the forecast item to the forecast container
+    // Append the forecast item to the forecast row
     forecastRow.append(forecastList);
   }
 
@@ -170,11 +167,11 @@ function renderButtons() {
       event.preventDefault();
 
       // Find the clicked city's data from the cities array
-      var clickedCity = cities.find((city) => city.name === $(this).text());
+      var clickedCity = cities.find(city => city.name === $(this).text());
 
       // Render the current weather and forecast for the clicked city
       renderCurrentWeather(clickedCity.data);
-      renderForecast(clickedCity.data);
+      console.log(renderForecast(clickedCity.data));
     });
   }
 }
