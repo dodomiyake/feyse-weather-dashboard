@@ -10,11 +10,11 @@ $("#search-button").on("click", function (event) {
   var city = $("#search-input").val().trim();
 
   // Define the API key for OpenWeatherMap
-  var APIKey = "e423019d8b3f2409867c92556f4d3caf";
+  var APIKey = "f05ce3ea0316fc22f85e295dddf3a196";
 
   // Construct the URL for querying weather data using OpenWeatherMap API
   var queryURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${APIKey}`;
-  var forecastQuery = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${APIKey}&cnt=38`;
+  var forecastQuery = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=${APIKey}`;
 
   // Perform a Fetch API call to retrieve weather data
   fetch(queryURL)
@@ -98,6 +98,9 @@ function renderCurrentWeather(data) {
   $("#today").append(humidity);
 }
 
+
+
+
 // Function to render forecast information
 function renderForecast(data) {
   // Clear the existing content in the "forecast" container
@@ -139,6 +142,10 @@ function renderForecast(data) {
   $("#forecast").append(forecastRow);
 }
 
+
+
+
+
 // Function to render buttons for each searched city
 function renderButtons() {
   // Clear the existing city buttons to avoid duplicates
@@ -169,9 +176,59 @@ function renderButtons() {
       // Find the clicked city's data from the cities array
       var clickedCity = cities.find(city => city.name === $(this).text());
 
-      // Render the current weather and forecast for the clicked city
-      renderCurrentWeather(clickedCity.data);
-      console.log(renderForecast(clickedCity.data));
+      // Check if forecast data is available in localStorage
+      var storedForecast = JSON.parse(localStorage.getItem(clickedCity.name + '_forecast'));
+
+      if (storedForecast) {
+        // If forecast data is available, render it directly
+        renderForecast(storedForecast);
+      } else {
+        // If forecast data is not available, fetch it and then render
+        fetchForecastData(clickedCity.name);
+      }
     });
   }
+
+  // Function to fetch forecast data for a city
+function fetchForecastData(cityName) {
+  var APIKey = "f05ce3ea0316fc22f85e295dddf3a196";
+  var forecastQuery = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=${APIKey}`;
+
+  fetch(forecastQuery)
+    .then(handleResponse)
+    .then(function (data) {
+      // Save the forecast data to localStorage
+      localStorage.setItem(cityName + '_forecast', JSON.stringify(data));
+      // Render the forecast data
+      renderForecast(data);
+    })
+    .catch(function (error) {
+      // Handle errors, such as city not found
+      console.error(error);
+    });
 }
+
+
+
+  
+
+  // Create and append the "Clear History" button dynamically
+  var clearHistoryButton = $("<button>")
+    .attr("id", "clear-history")
+    .addClass("btn btn-danger mt-3")
+    .text("Clear History");
+
+  $("#history").append(clearHistoryButton);
+
+  // Attach a click event listener to the clear history button
+  clearHistoryButton.on("click", function (event) {
+    // Prevent the default button behavior
+    event.preventDefault();
+
+    // Clear the local storage and update the displayed city buttons
+    localStorage.removeItem('cities');
+    cities = [];
+    renderButtons();
+  });
+}
+
