@@ -45,7 +45,7 @@ You can access the live demo of the app at https://dodomiyake.github.io/feyse-we
 
 ### Screenshots
 
-![Alt text](image.png)
+![Alt text](image-1.png)
 
 ## Technologies Used
 
