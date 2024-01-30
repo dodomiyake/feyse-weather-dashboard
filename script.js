@@ -129,7 +129,7 @@ function renderForecast(data) {
     var forecastIcon = forecastItem.weather[0].icon;
     var forecastIconImg = `https://openweathermap.org/img/wn/${forecastIcon}.png`;
     var forecastImg = $("<img>").attr("src", forecastIconImg);
-    var forecastTempC = forecastItem.main.temp - 273.15;
+    var forecastTempC = (forecastItem.main.temp - 32) * 0.6;
 
     // Log temperature information to the console
     console.log(forecastTempC);
