@@ -1,4 +1,4 @@
-// Create an empty array to store searched cities
+// Create an empty array to store searched cities or retrieve existing data from localStorage
 var cities = JSON.parse(localStorage.getItem('cities')) || [];
 
 // Attach a click event listener to the search button
@@ -39,6 +39,7 @@ $("#search-button").on("click", function (event) {
       alert("City not found. Please enter a valid city name.");
     });
 
+  // Perform a Fetch API call to retrieve forecast data
   fetch(forecastQuery)
     .then(handleResponse)
     .then(renderForecast)
@@ -68,6 +69,10 @@ function renderCurrentWeather(data) {
   // Clear the existing content in the "today" container
   $("#today").empty();
 
+  // Log the retrieved data to the console
+  console.log(data);
+
+  // Format the current date
   var now = dayjs().format("DD/MM/YYYY");
   var cityName = $("<h2>").addClass("fw-bold");
   var weatherIcon = data.weather[0].icon;
@@ -98,9 +103,6 @@ function renderCurrentWeather(data) {
   $("#today").append(humidity);
 }
 
-
-
-
 // Function to render forecast information
 function renderForecast(data) {
   // Clear the existing content in the "forecast" container
@@ -115,17 +117,23 @@ function renderForecast(data) {
   // Loop through the forecast items
   for (var i = 1; i < data.list.length; i += 8) {
     var forecastItem = data.list[i];
+    console.log(data.list[i]);
 
     // Create a new list item for each forecast item
     var forecastList = $("<li>").addClass("list-group-item col-md-2 mx-3 mb-3 p-3 bg-dark text-white");
     var forecastWind = $("<div>").addClass("windEl").text(`Wind: ${forecastItem.wind.speed} KPH`);
     var forecastHum = $("<div>").addClass("humidityEl").text(`Humidity: ${forecastItem.main.humidity}%`);
 
+    // Format the forecast date
     var forecastDate = dayjs(forecastItem.dt_txt).add(1, 'day').format("DD/MM/YYYY");
     var forecastIcon = forecastItem.weather[0].icon;
     var forecastIconImg = `https://openweathermap.org/img/wn/${forecastIcon}.png`;
     var forecastImg = $("<img>").attr("src", forecastIconImg);
     var forecastTempC = forecastItem.main.temp - 273.15;
+
+    // Log temperature information to the console
+    console.log(forecastTempC);
+    console.log(forecastItem.main.temp);
 
     // Set the content for each forecast item
     forecastList.append($("<h6>").text(forecastDate));
@@ -141,10 +149,6 @@ function renderForecast(data) {
   // Append the forecast row to the forecast container
   $("#forecast").append(forecastRow);
 }
-
-
-
-
 
 // Function to render buttons for each searched city
 function renderButtons() {
@@ -190,27 +194,23 @@ function renderButtons() {
   }
 
   // Function to fetch forecast data for a city
-function fetchForecastData(cityName) {
-  var APIKey = "f05ce3ea0316fc22f85e295dddf3a196";
-  var forecastQuery = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=${APIKey}`;
+  function fetchForecastData(cityName) {
+    var APIKey = "f05ce3ea0316fc22f85e295dddf3a196";
+    var forecastQuery = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=${APIKey}`;
 
-  fetch(forecastQuery)
-    .then(handleResponse)
-    .then(function (data) {
-      // Save the forecast data to localStorage
-      localStorage.setItem(cityName + '_forecast', JSON.stringify(data));
-      // Render the forecast data
-      renderForecast(data);
-    })
-    .catch(function (error) {
-      // Handle errors, such as city not found
-      console.error(error);
-    });
-}
-
-
-
-  
+    fetch(forecastQuery)
+      .then(handleResponse)
+      .then(function (data) {
+        // Save the forecast data to localStorage
+        localStorage.setItem(cityName + '_forecast', JSON.stringify(data));
+        // Render the forecast data
+        renderForecast(data);
+      })
+      .catch(function (error) {
+        // Handle errors, such as city not found
+        console.error(error);
+      });
+  }
 
   // Create and append the "Clear History" button dynamically
   var clearHistoryButton = $("<button>")
@@ -231,4 +231,3 @@ function fetchForecastData(cityName) {
     renderButtons();
   });
 }
-
